@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent OS - Mission Control</title>
+  <!-- Google Fonts: Plus Jakarta Sans for premium modern look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="logo-glow"></div>
+        <i data-lucide="cpu" class="brand-icon"></i>
+        <span>Agent OS</span>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="dashboard">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-tab="jarvis">
+          <i data-lucide="mic"></i>
+          <span>Hermes Jarvis</span>
+        </button>
+        <button class="nav-item" data-tab="inbox">
+          <i data-lucide="mail"></i>
+          <span>Draft-Gate Inbox</span>
+          <span class="badge badge-pulse" id="inbox-badge">3</span>
+        </button>
+        <button class="nav-item" data-tab="kanban">
+          <i data-lucide="kanban"></i>
+          <span>Orkestratör</span>
+        </button>
+        <button class="nav-item" data-tab="goals">
+          <i data-lucide="play-circle"></i>
+          <span>Goals Mode</span>
+        </button>
+        <button class="nav-item" data-tab="video-studio">
+          <i data-lucide="video"></i>
+          <span>Video Stüdyosu</span>
+        </button>
+        <button class="nav-item" data-tab="memory">
+          <i data-lucide="git-fork"></i>
+          <span>Obsidian Bellek</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="avatar">CEO</div>
+          <div class="profile-info">
+            <span class="username">Stratejik Karar Verici</span>
+            <span class="role">Sistem Yöneticisi</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="main-content">
+      
+      <!-- TOP HEADER -->
+      <header class="top-header">
+        <div class="header-title">
+          <h1 id="page-title">Mission Control</h1>
+          <p class="subtitle" id="page-subtitle">Agentic workflow system and telemetry overview</p>
+        </div>
+        
+        <!-- TELEMETRY / QUICK STATS -->
+        <div class="telemetry-bar">
+          <div class="telemetry-item">
+            <span class="label">Ajanlar:</span>
+            <span class="value" id="stats-agents">4 Aktif</span>
+          </div>
+          <div class="telemetry-item">
+            <span class="label">Bellek:</span>
+            <span class="value" id="stats-memory">142 KB (Obsidian)</span>
+          </div>
+          <div class="telemetry-item">
+            <span class="label">API Maliyet:</span>
+            <span class="value text-accent" id="stats-cost">$1.42</span>
+          </div>
+          <div class="telemetry-item">
+            <span class="label">Sistem Durumu:</span>
+            <span class="status-indicator online"></span>
+            <span class="value">Çevrimiçi</span>
+          </div>
+        </div>
+
+        <!-- SETTINGS AND VOICE CONTROL -->
+        <div class="header-controls">
+          <div class="tts-toggle-container">
+            <i data-lucide="volume-2" class="tts-icon"></i>
+            <span class="toggle-label">Jarvis Sesi (TTS)</span>
+            <label class="switch">
+              <input type="checkbox" id="tts-toggle">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="model-select-wrapper">
+            <i data-lucide="brain-circuit" class="select-icon"></i>
+            <select id="model-select">
+              <option value="hermes">Hermes Jarvis (Default)</option>
+              <option value="kim">Kim K2.7 (Moonshot)</option>
+              <option value="gemini">Gemini Pro</option>
+              <option value="claude">Claude 3.5 Sonnet</option>
+            </select>
+          </div>
+        </div>
+      </header>
+
+      <!-- VIEW PANES -->
+      <div class="view-panes">
+
+        <!-- VIEW 1: DASHBOARD OVERVIEW -->
+        <section class="view-pane active" id="view-dashboard">
+          <div class="grid-layout cols-3">
+            
+            <!-- Welcome Card -->
+            <div class="card card-wide card-gradient">
+              <div class="card-glow"></div>
+              <h2>Hoş Geldiniz, CEO</h2>
+              <p>Yapay zeka asistanlarınız 7/24 çalışmaya devam ediyor. Görevlerinizi orkestre etmek, e-postalarınızı "Draft-Gate" ile onaylamak ve Jarvis'e sesli komutlar vermek için menüyü kullanabilirsiniz.</p>
+              <div class="stats-mini-grid">
+                <div class="mini-stat">
+                  <span class="num" id="mini-stat-emails">18</span>
+                  <span class="lbl">Tasnif Edilen E-posta</span>
+                </div>
+                <div class="mini-stat">
+                  <span class="num" id="mini-stat-backlinks">4</span>
+                  <span class="lbl">Backlink Talebi</span>
+                </div>
+                <div class="mini-stat">
+                  <span class="num" id="mini-stat-saved">2.5 Sa</span>
+                  <span class="lbl">Kazanılan Zaman</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Active Operations Panel -->
+            <div class="card">
+              <h3>Aktif Kampanyalar</h3>
+              <ul class="campaign-list">
+                <li class="campaign-item">
+                  <div class="campaign-details">
+                    <span class="name">SEO Backlink Outreach</span>
+                    <span class="desc">Julian Goldie Stratejisi</span>
+                  </div>
+                  <span class="status status-running">Aktif</span>
+                </li>
+                <li class="campaign-item">
+                  <div class="campaign-details">
+                    <span class="name">AI Blog Editor</span>
+                    <span class="desc">Obsidian Entegrasyon Yazımı</span>
+                  </div>
+                  <span class="status status-running">Aktif</span>
+                </li>
+                <li class="campaign-item">
+                  <div class="campaign-details">
+                    <span class="name">Inbox Triyaj Ajanı</span>
+                    <span class="desc">Otomatik Tasnif ve Taslak</span>
+                  </div>
+                  <span class="status status-idle">Beklemede</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Configuration & System Integrations -->
+            <div class="card card-wide">
+              <h3>Altyapı Bağlantıları</h3>
+              <p class="card-subtitle">Google Servis Hesabı ve Dedicated Inbox konfigürasyonu</p>
+              <div class="flex-row gap-16 justify-between items-center bg-darker p-16 rounded-8 border-1 mt-12">
+                <div class="flex-row gap-12 items-center">
+                  <i data-lucide="shield-check" class="text-mint size-24"></i>
+                  <div>
+                    <span class="font-bold d-block text-white">Google Service Account</span>
+                    <span class="text-muted text-sm">OAuth 2.0 API Bağlantısı Aktif</span>
+                  </div>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="btn-reconnect-google">Yeniden Bağlan</button>
+              </div>
+              <div class="flex-row gap-16 justify-between items-center bg-darker p-16 rounded-8 border-1 mt-12">
+                <div class="flex-row gap-12 items-center">
+                  <i data-lucide="mail" class="text-neon size-24"></i>
+                  <div>
+                    <span class="font-bold d-block text-white">Dedicated Agent Inbox</span>
+                    <span class="text-muted text-sm" id="inbox-status-label">agent.jarvis@domain.com (Active)</span>
+                  </div>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="btn-change-inbox">Değiştir</button>
+              </div>
+            </div>
+
+            <!-- Agent OS Realtime Tick Log Console -->
+            <div class="card card-wide card-full-width">
+              <div class="card-header">
+                <h3>Agent OS Çekirdek Günlüğü (Real-time Ticks)</h3>
+                <span class="console-badge">Self-Healing: Aktif</span>
+              </div>
+              <div class="console-box" id="dashboard-console">
+                <div class="console-line">[11:58:10] SYSTEM: Agent OS v1.2.0 başlatıldı.</div>
+                <div class="console-line">[11:58:12] MEMORY: Obsidian Vault başarıyla yüklendi (142 KB, 24 Dosya).</div>
+                <div class="console-line">[11:58:15] CLERK: Zamanlanmış Outreach Görevi tetiklendi (Limit: 5 e-posta/gün).</div>
+                <div class="console-line">[11:58:20] OUTREACH: techblog.org için kişiselleştirilmiş backlink taslağı oluşturuldu.</div>
+                <div class="console-line">[11:58:21] DRAFTGATE: Yeni taslak onaya sunuldu: 'Re: SEO İş Birliği Fırsatı'.</div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- VIEW 2: HERMES JARVIS CHAT -->
+        <section class="view-pane" id="view-jarvis">
+          <div class="jarvis-container">
+            
+            <!-- Left Info Panel -->
+            <div class="jarvis-sidebar">
+              <div class="jarvis-avatar-box">
+                <div class="jarvis-avatar-ring">
+                  <div class="jarvis-avatar">
+                    <i data-lucide="mic" class="avatar-mic"></i>
+                  </div>
+                </div>
+                <h3>Hermes Jarvis</h3>
+                <p class="status-text">İngiliz Uşağı Sesiyle Eylem Ajanı</p>
+              </div>
+              <div class="quick-commands-card">
+                <h4>Hızlı Komutlar</h4>
+                <ul>
+                  <li><span class="cmd">/help</span> Jarvis yeteneklerini listeler.</li>
+                  <li><span class="cmd">/email</span> E-posta taslakları oluşturur.</li>
+                  <li><span class="cmd">/goal [hedef]</span> Otonom Goals modunu başlatır.</li>
+                  <li><span class="cmd">/memory</span> Obsidian hafızasını sorgular.</li>
+                </ul>
+              </div>
+              <div class="tts-voice-setting">
+                <span class="lbl-sm">Konuşma Hızı:</span>
+                <input type="range" min="0.5" max="1.5" step="0.1" value="1.0" id="tts-rate" class="slider-sm">
+              </div>
+            </div>
+
+            <!-- Right Chat Panel -->
+            <div class="jarvis-chat-area">
+              <!-- Visual Voice Wave -->
+              <div class="voice-wave-container">
+                <canvas id="voice-wave-canvas" height="60"></canvas>
+                <div class="wave-overlay">Jarvis Dinliyor... (Ses Dalga Simülasyonu)</div>
+              </div>
+
+              <!-- Message History -->
+              <div class="chat-messages" id="chat-messages">
+                <div class="message message-bot">
+                  <div class="msg-avatar">H</div>
+                  <div class="msg-bubble">
+                    <p>Good day, CEO. Ben Hermes Jarvis. Bilgisayarınız üzerinde eylemler gerçekleştirmek, e-posta taslakları hazırlamak veya otonom hedefler koordine etmek için hazır bekliyorum. Bana sesli veya yazılı talimat verebilirsiniz.</p>
+                    <span class="msg-time">11:58</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Chat Input Bar -->
+              <div class="chat-input-bar">
+                <button class="btn-chat-action" id="btn-mic" title="Sesli Komut Ver">
+                  <i data-lucide="mic"></i>
+                </button>
+                <input type="text" id="chat-input" placeholder="Jarvis'e bir talimat yazın (Örn: 'SEO rehberimiz için e-posta taslağı yaz' veya '/help')...">
+                <button class="btn-chat-send" id="btn-send">
+                  <i data-lucide="send"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- VIEW 3: DRAFT-GATE INBOX -->
+        <section class="view-pane" id="view-inbox">
+          <div class="inbox-container">
+            
+            <!-- Left Pane: Mail List -->
+            <div class="inbox-sidebar">
+              <div class="inbox-header">
+                <h3>Draft-Gate Gelen Kutusu</h3>
+                <span class="pending-count" id="inbox-pending-text">3 Taslak Bekliyor</span>
+              </div>
+              <div class="mail-list" id="mail-list">
+                <!-- Item 1 -->
+                <div class="mail-item active" data-id="1">
+                  <div class="mail-meta">
+                    <span class="sender">techblog.org</span>
+                    <span class="time">11:42</span>
+                  </div>
+                  <span class="subject">Re: SEO İş Birliği Fırsatı</span>
+                  <p class="snippet">Bizimle backlink iş birliği yapmak istediğinizi belirttiniz. Detaylar nedir?</p>
+                  <div class="mail-tags">
+                    <span class="tag tag-outreach">Backlink Outreach</span>
+                    <span class="tag tag-urgency">Önemli</span>
+                  </div>
+                </div>
+                <!-- Item 2 -->
+                <div class="mail-item" data-id="2">
+                  <div class="mail-meta">
+                    <span class="sender">content-king.com</span>
+                    <span class="time">10:15</span>
+                  </div>
+                  <span class="subject">Re: Sponsorlu İçerik Yayınlama</span>
+                  <p class="snippet">Yazınızı yayınlamak için 100$ bütçe talep ediyoruz...</p>
+                  <div class="mail-tags">
+                    <span class="tag tag-negotiation">Pazarlık</span>
+                  </div>
+                </div>
+                <!-- Item 3 -->
+                <div class="mail-item" data-id="3">
+                  <div class="mail-meta">
+                    <span class="sender">seo-masters.net</span>
+                    <span class="time">Dün</span>
+                  </div>
+                  <span class="subject">Öneri: Ücretsiz Rehber Değişimi</span>
+                  <p class="snippet">Harika bir SEO rehberiniz olduğunu gördük. Karşılıklı link paylaşımı yapabiliriz.</p>
+                  <div class="mail-tags">
+                    <span class="tag tag-outreach">Link Exchange</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Pane: Mail Thread & Draft-Gate Action -->
+            <div class="inbox-detail">
+              
+              <!-- Original Mail Card -->
+              <div class="original-mail-card">
+                <div class="mail-detail-header">
+                  <div class="sender-info">
+                    <div class="avatar-circle">TB</div>
+                    <div>
+                      <h4 id="detail-sender">techblog.org &lt;editor@techblog.org&gt;</h4>
+                      <p class="to">Kime: agent.jarvis@company.com</p>
+                    </div>
+                  </div>
+                  <span class="detail-time" id="detail-time">11:42 (16 dk önce)</span>
+                </div>
+                <div class="mail-body" id="detail-body">
+                  <p>Merhaba Jarvis,</p>
+                  <p>Web sitemiz üzerinden backlink iş birliği yapmak istediğinize dair bir mail aldım. Bahsettiğiniz 'Yeni Nesil SEO Rehberi' içeriğini inceledim ve oldukça kaliteli buldum. Sitemizde bu konuda bir link paylaşımı yapabiliriz.</p>
+                  <p>Teklifiniz ve detaylarınız tam olarak nedir? Hangi makalemizden link çıkışı istiyorsunuz?</p>
+                  <p>Saygılarımla,<br>techblog.org Editör Ekibi</p>
+                </div>
+              </div>
+
+              <!-- Draft-Gate Action Center -->
+              <div class="draft-gate-panel">
+                <div class="draft-header">
+                  <div class="draft-badge-container">
+                    <span class="draft-status-badge">AI Taslağı Hazır</span>
+                    <span class="model-badge">Claude 3.5 Entegrasyonu</span>
+                  </div>
+                  <span class="action-warning"><i data-lucide="shield-alert"></i> Draft-Gate: Onayınız olmadan gönderilemez.</span>
+                </div>
+                
+                <div class="draft-editor-wrapper">
+                  <label for="draft-text" class="editor-label">Düzenlenebilir Yanıt Taslağı</label>
+                  <textarea id="draft-text" class="draft-textarea">Merhaba techblog.org Ekibi,
+
+Hızlı dönüşünüz ve makalemize gösterdiğiniz ilgi için çok teşekkürler! 
+
+Sitenizde yer alan "2026'da Dijital Pazarlama Trendleri" makalenizdeki "Backlink Stratejileri" başlığı altından bizim "Yeni Nesil SEO Rehberi" sayfamıza (https://company.com/seo-guide) link vermenizi öneriyoruz. Bu, okuyucularınıza yüksek değerli ek bağlam sunacaktır.
+
+Karşılık olarak, bizim de bir sonraki blog yazımızda sizin sitenize ilgili bir link ile referans vermekten memnuniyet duyacağımızı belirtmek isterim.
+
+Onaylarsanız makaleyi düzenlemeniz için gerekli çapa metnini (anchor text) iletebilirim.
+
+Saygılarımla,
+CEO (Hermes AI Aracılığıyla)</textarea>
+                </div>
+
+                <div class="draft-actions">
+                  <button class="btn btn-danger" id="btn-draft-decline">
+                    <i data-lucide="trash-2"></i> Taslağı İptal Et
+                  </button>
+                  <button class="btn btn-secondary" id="btn-draft-regenerate">
+                    <i data-lucide="refresh-cw"></i> Yeniden Oluştur (Farklı Ton)
+                  </button>
+                  <button class="btn btn-primary" id="btn-draft-approve">
+                    <i data-lucide="send"></i> Onayla & Gönder
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+
+        <!-- VIEW 4: KANBAN ORCHESTRATION -->
+        <section class="view-pane" id="view-kanban">
+          <div class="kanban-info">
+            <h3>Orkestratör Ajan Kanban Panosu</h3>
+            <p>Hedeflerin alt görevlere bölünerek paralel veya ardışık (sequential) olarak ajanlara dağıtılması.</p>
+          </div>
+          
+          <div class="kanban-board">
+            
+            <!-- Column 1: Backlog -->
+            <div class="kanban-column" id="col-backlog">
+              <div class="column-header">
+                <span>Bekleme Listesi (Backlog)</span>
+                <span class="count-badge">2</span>
+              </div>
+              <div class="kanban-cards">
+                <div class="kanban-card" data-id="task-1">
+                  <span class="task-tag tag-purple">Araştırma</span>
+                  <h4>Rakip SEO Backlink Analizi</h4>
+                  <p>Ahrefs verileri üzerinden en çok link alan 20 sektörel blogu listele.</p>
+                  <div class="card-footer">
+                    <span class="assigned-agent">
+                      <i data-lucide="cpu"></i> OpenClaw
+                    </span>
+                    <button class="btn-card-move" onclick="moveCard('task-1', 'col-progress')">
+                      <i data-lucide="arrow-right"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="kanban-card" data-id="task-2">
+                  <span class="task-tag tag-blue">Zamanlayıcı</span>
+                  <h4>Takip E-postalarını Ayarla</h4>
+                  <p>Son 3 günde yanıt vermeyen adaylara 2. takip maillerini planla.</p>
+                  <div class="card-footer">
+                    <span class="assigned-agent">
+                      <i data-lucide="mail"></i> Email Specialist
+                    </span>
+                    <button class="btn-card-move" onclick="moveCard('task-2', 'col-progress')">
+                      <i data-lucide="arrow-right"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Column 2: In Progress -->
+            <div class="kanban-column" id="col-progress">
+              <div class="column-header">
+                <span>İşlemde (In Progress)</span>
+                <span class="count-badge">2</span>
+              </div>
+              <div class="kanban-cards">
+                <div class="kanban-card" data-id="task-3">
+                  <span class="task-tag tag-orange">Keşif</span>
+                  <h4>SEO Rehberi İçin Site Bulma</h4>
+                  <p>Arama motorlarından ve rehberlerden 'tech blog' kategorisinde 5 yeni site keşfet.</p>
+                  <div class="card-footer">
+                    <span class="assigned-agent">
+                      <i data-lucide="search"></i> Jarvis (Clerk)
+                    </span>
+                    <div class="flex-row gap-4">
+                      <button class="btn-card-move" onclick="moveCard('task-3', 'col-backlog')">
+                        <i data-lucide="arrow-left"></i>
+                      </button>
+                      <button class="btn-card-move" onclick="moveCard('task-3', 'col-review')">
+                        <i data-lucide="arrow-right"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="kanban-card" data-id="task-4">
+                  <span class="task-tag tag-pink">İçerik</span>
+                  <h4>SEO Blog Yazısı Hazırlama</h4>
+                  <p>Web sitesi için 'Ajan İşletim Sistemleri' hakkında 1500 kelimelik taslak hazırla.</p>
+                  <div class="card-footer">
+                    <span class="assigned-agent">
+                      <i data-lucide="edit-3"></i> AI Writer
+                    </span>
+                    <div class="flex-row gap-4">
+                      <button class="btn-card-move" onclick="moveCard('task-4', 'col-backlog')">
+                        <i data-lucide="arrow-left"></i>
+                      </button>
+                      <button class="btn-card-move" onclick="moveCard('task-4', 'col-review')">
+                        <i data-lucide="arrow-right"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Column 3: Review / Draft-Gate -->
+            <div class="kanban-column" id="col-review">
+              <div class="column-header">
+                <span>Onay Bekleyenler (Review)</span>
+                <span class="count-badge">1</span>
+              </div>
+              <div class="kanban-cards">
+                <div class="kanban-card" data-id="task-5">
+                  <span class="task-tag tag-green">Onay</span>
+                  <h4>techblog.org Yanıt Taslağı</h4>
+                  <p>Backlink teklifine gelen cevaba karşılık oluşturulan AI taslağı onayı.</p>
+                  <div class="card-footer">
+                    <span class="assigned-agent">
+                      <i data-lucide="shield"></i> Judge Model
+                    </span>
+                    <div class="flex-row gap-4">
+                      <button class="btn-card-move" onclick="moveCard('task-5', 'col-progress')">
+                        <i data-lucide="arrow-left"></i>
+                      </button>
+                      <button class="btn-card-move" onclick="moveCard('task-5', 'col-completed')">
+                        <i data-lucide="arrow-right"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Column 4: Completed -->
+            <div class="kanban-column" id="col-completed">
+              <div class="column-header">
+                <span>Tamamlanan (Completed)</span>
+                <span class="count-badge">1</span>
+              </div>
+              <div class="kanban-cards">
+                <div class="kanban-card" data-id="task-6">
+                  <span class="task-tag tag-green">Başarı</span>
+                  <h4>Google Service Bağlantısı</h4>
+                  <p>Google Cloud üzerinde servis hesabı yetkilendirme JSON dosyası sisteme bağlandı.</p>
+                  <div class="card-footer">
+                    <span class="assigned-agent">
+                      <i data-lucide="check-circle"></i> Sistem
+                    </span>
+                    <button class="btn-card-move" onclick="moveCard('task-6', 'col-review')">
+                      <i data-lucide="arrow-left"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- VIEW 5: GOALS MODE (AUTONOMOUS LOOP) -->
+        <section class="view-pane" id="view-goals">
+          <div class="grid-layout cols-2">
+            
+            <!-- Left: Goal Setup -->
+            <div class="card">
+              <h3>Goals Mode (Otonom Çalışma Modu)</h3>
+              <p class="card-subtitle">Sisteme otonom bir hedef verin. Ajanlar siz uyurken 7/24 hedefe ulaşana kadar çalışacaktır.</p>
+              
+              <div class="goal-input-group mt-16">
+                <label for="goal-input" class="editor-label">Otonom Hedef Cümlesi</label>
+                <textarea id="goal-input" placeholder="Örnek: 'SEO rehberimiz için backlink alabileceğimiz 5 alakalı web sitesi keşfet, e-posta taslaklarını hazırla ve Draft-Gate'e ekle.'"></textarea>
+              </div>
+
+              <div class="predefined-goals mt-12">
+                <span class="lbl-sm">Örnek Hedefler:</span>
+                <div class="flex-row flex-wrap gap-8 mt-4">
+                  <button class="btn-suggestion" onclick="setGoalText(this)">Siteden bağımsız teknoloji blogları keşfet ve link outreach başlat.</button>
+                  <button class="btn-suggestion" onclick="setGoalText(this)">Obsidian hafızasını oku ve OpenClaw hakkında 3 blog yazısı planla.</button>
+                </div>
+              </div>
+
+              <div class="flex-row gap-12 mt-20">
+                <button class="btn btn-primary btn-icon" id="btn-start-goal">
+                  <i data-lucide="play"></i> Otonom Orkestrasyonu Başlat (20 Tick)
+                </button>
+                <button class="btn btn-secondary btn-icon" id="btn-stop-goal" disabled>
+                  <i data-lucide="square"></i> Durdur
+                </button>
+              </div>
+            </div>
+
+            <!-- Right: Goal Status & Judge -->
+            <div class="card flex-column">
+              <h3>Hedef Durumu ve Takibi</h3>
+              
+              <!-- Progress Indicator -->
+              <div class="goal-progress-steps mt-12">
+                <div class="progress-step active" id="step-analysis">
+                  <span class="step-num">1</span>
+                  <span class="step-lbl">Hedef Analizi</span>
+                </div>
+                <div class="progress-step" id="step-tasks">
+                  <span class="step-num">2</span>
+                  <span class="step-lbl">Görev Planlama</span>
+                </div>
+                <div class="progress-step" id="step-executing">
+                  <span class="step-num">3</span>
+                  <span class="step-lbl">İcraat Döngüsü (Ticks)</span>
+                </div>
+                <div class="progress-step" id="step-judge">
+                  <span class="step-num">4</span>
+                  <span class="step-lbl">Yargıç Kontrolü</span>
+                </div>
+              </div>
+
+              <!-- Live Telemetry -->
+              <div class="goals-telemetry mt-16">
+                <div class="telemetry-box">
+                  <span class="lbl">Döngü Turu</span>
+                  <span class="val" id="goals-tick-count">0 / 20</span>
+                </div>
+                <div class="telemetry-box">
+                  <span class="lbl">Maliyet Limit</span>
+                  <span class="val" id="goals-cost">$0.00 / $5.00</span>
+                </div>
+                <div class="telemetry-box">
+                  <span class="lbl">Yargıç Değerlendirmesi</span>
+                  <span class="val text-amber" id="goals-judge-status">Bekleniyor</span>
+                </div>
+              </div>
+
+              <!-- Self Healing Console -->
+              <div class="console-box flex-grow-1 mt-12" id="goals-console">
+                <div class="console-line text-muted">Goals Mode simülasyonu başlatılmayı bekliyor...</div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- VIEW 6: OBSIDIAN MEMORY GRAPH -->
+        <section class="view-pane" id="view-memory">
+          <div class="memory-layout">
+            
+            <!-- Graph Container -->
+            <div class="memory-graph-card">
+              <div class="graph-header">
+                <h3>Obsidian Bellek Katmanı</h3>
+                <p>Ajanların paylaştığı merkezi bağlam ağı (Context Network)</p>
+              </div>
+              <div class="canvas-container">
+                <canvas id="memory-canvas"></canvas>
+                <div class="graph-tip"><i data-lucide="info"></i> Düğümlere (Node) tıklayarak detayları görebilirsiniz. Sürükleyerek ağı düzenleyin.</div>
+              </div>
+            </div>
+
+            <!-- Details Drawer Panel -->
+            <div class="memory-details-panel">
+              <div class="drawer-header">
+                <i data-lucide="file-text" class="text-neon"></i>
+                <h3 id="memory-node-title">Bellek Hücresi</h3>
+              </div>
+              <div class="drawer-body" id="memory-node-content">
+                <p class="text-muted">Ağ üzerinde bir düğüm seçerek detaylı Obsidian markdown dosyasını okuyabilirsiniz.</p>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- VIEW 7: AI VIDEO AGENTS STUDIO -->
+        <section class="view-pane" id="view-video-studio">
+          <div class="grid-layout cols-2">
+            
+            <!-- Left Pane: Parameters & Trigger -->
+            <div class="card">
+              <h3>Otonom Video Fabrikası</h3>
+              <p class="card-subtitle">Anahtar kelimenizden, sizin avatarınız ve sesinizle kurgulanmış profesyonel videolar üretin.</p>
+              
+              <div class="goal-input-group mt-16">
+                <label for="video-keyword-input" class="editor-label">SEO Anahtar Kelimesi (Keyword)</label>
+                <input type="text" id="video-keyword-input" placeholder="Örn: 'Kim K2.7', 'Hermes Agent OS', 'AI SEO Stratejileri'" value="Kim K2.7" style="width:100%; height:42px; background:#06070a; border:1px solid var(--border-color); border-radius:8px; padding:0 12px; color:#fff; font-family:var(--font-family); font-size:13px; outline:none; transition:var(--transition);">
+              </div>
+
+              <!-- Component Selection -->
+              <div class="flex-column gap-12 mt-16 bg-darker p-16 rounded-8 border-1">
+                <h4 class="text-white text-sm font-bold">Prodüksiyon Ekip Ayarları</h4>
+                
+                <div class="flex-row justify-between items-center mt-4">
+                  <span class="text-muted text-sm">Sunucu Avatar (HeyGen CLI):</span>
+                  <select id="video-avatar-select" style="background:#06070a; border:1px solid var(--border-color); color:#fff; padding:4px 8px; border-radius:6px; font-size:11px; outline:none;">
+                    <option value="ceo-clone">CEO Dijital İkiz (Klon)</option>
+                    <option value="butler-avatar">Jarvis Uşak Avatara</option>
+                  </select>
+                </div>
+
+                <div class="flex-row justify-between items-center mt-4">
+                  <span class="text-muted text-sm">Müzik Temposu (Suno API):</span>
+                  <select id="video-music-select" style="background:#06070a; border:1px solid var(--border-color); color:#fff; padding:4px 8px; border-radius:6px; font-size:11px; outline:none;">
+                    <option value="cyberpunk">Cyberpunk Beats</option>
+                    <option value="ambient-corporate">Ambient Corporate</option>
+                    <option value="upbeat-lofi">Upbeat Lofi</option>
+                  </select>
+                </div>
+
+                <div class="flex-row justify-between items-center mt-4">
+                  <span class="text-muted text-sm">Ses Profili (Voice Clone):</span>
+                  <span class="text-mint font-bold text-sm">CEO Ses Klonu Aktif</span>
+                </div>
+              </div>
+
+              <div class="flex-row gap-12 mt-20">
+                <button class="btn btn-primary btn-icon" id="btn-start-video">
+                  <i data-lucide="play"></i> Otonom Üretim Hattını Başlat
+                </button>
+                <button class="btn btn-secondary btn-icon" id="btn-stop-video" disabled>
+                  <i data-lucide="square"></i> Durdur
+                </button>
+              </div>
+            </div>
+
+            <!-- Right Pane: Pipeline & Preview -->
+            <div class="card flex-column">
+              <div class="card-header">
+                <h3>Üretim Hattı & Kalite Kontrol (AQA)</h3>
+                <span class="console-badge" id="video-iteration-badge">İterasyon: 0</span>
+              </div>
+              
+              <!-- Video Studio Stepper -->
+              <div class="goal-progress-steps mt-12">
+                <div class="progress-step" id="v-step-triage">
+                  <span class="step-num">T</span>
+                  <span class="step-lbl">Triyaj</span>
+                </div>
+                <div class="progress-step" id="v-step-script">
+                  <span class="step-num">S</span>
+                  <span class="step-lbl">Metin</span>
+                </div>
+                <div class="progress-step" id="v-step-render">
+                  <span class="step-num">R</span>
+                  <span class="step-lbl">Render</span>
+                </div>
+                <div class="progress-step" id="v-step-judge">
+                  <span class="step-num">J</span>
+                  <span class="step-lbl">Judge</span>
+                </div>
+              </div>
+
+              <!-- Judge Scoring Gauge -->
+              <div class="flex-row gap-16 items-center bg-darker p-12 rounded-8 border-1 mt-12 justify-between">
+                <div>
+                  <span class="text-muted text-sm d-block">AI Judge Puanı:</span>
+                  <span class="text-white font-bold" id="video-judge-score" style="font-size:20px; font-family:var(--font-mono)">-- / 10</span>
+                </div>
+                <div class="flex-column items-end">
+                  <span class="status status-idle" id="video-judge-status-label">BEKLENİYOR</span>
+                  <span class="text-muted text-sm mt-4" id="video-judge-comment" style="font-size:10px; max-width:200px; text-align:right">Video kurgu döngüsü başlatılmadı.</span>
+                </div>
+              </div>
+
+              <!-- Media Player Preview Mock -->
+              <div class="video-preview-player mt-16 bg-darker rounded-8 border-1 overflow-hidden relative" style="height:150px; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                <div class="video-player-glow" style="position:absolute; inset:0; background:linear-gradient(45deg, rgba(0,180,255,0.05), rgba(138,43,226,0.05)); z-index:1;"></div>
+                
+                <div id="player-idle-content" class="flex-column items-center" style="z-index:2; text-align:center;">
+                  <i data-lucide="video" class="text-muted size-32" style="opacity:0.5; margin-bottom:8px;"></i>
+                  <span class="text-muted text-sm">Üretilen video bu ekranda görüntülenecektir.</span>
+                </div>
+
+                <div id="player-active-content" class="flex-column justify-between p-12 width-full height-full" style="z-index:2; display:none; width:100%; height:100%; position:relative;">
+                  <div class="flex-row justify-between items-center">
+                    <span class="badge" style="background:var(--neon-blue); position:static;">MOCK PLAYER</span>
+                    <span class="text-xs text-white" id="player-caption-title">Kim K2.7 Video.mp4</span>
+                  </div>
+                  
+                  <!-- Scrolling Subtitle Captions -->
+                  <div class="player-subtitle-box" style="text-align:center; padding:10px; background:rgba(0,0,0,0.7); border-radius:6px; margin: 0 20px;">
+                    <p id="player-subtitle-text" style="font-family:var(--font-family); font-size:11px; color:#fff; font-weight:600; text-shadow:0 1px 2px #000;">[Script Writer] Video metni yükleniyor...</p>
+                  </div>
+                  
+                  <!-- Mock controls bar -->
+                  <div class="flex-row items-center gap-12" style="width:100%;">
+                    <button id="player-play-btn" style="background:transparent; border:none; color:#fff; cursor:pointer;"><i data-lucide="play" class="size-16"></i></button>
+                    <div style="flex-grow:1; height:4px; background:rgba(255,255,255,0.2); border-radius:2px; position:relative; overflow:hidden;">
+                      <div id="player-progress-bar" style="position:absolute; left:0; top:0; bottom:0; width:0%; background:var(--neon-blue); transition: width 0.1s linear;"></div>
+                    </div>
+                    <span class="text-xs" id="player-time-display" style="font-family:var(--font-mono);">0:00 / 0:30</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Console logs -->
+              <div class="console-box flex-grow-1 mt-12" id="video-console" style="height:120px;">
+                <div class="console-line text-muted">Video Stüdyosu simülasyonu başlatılmayı bekliyor...</div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

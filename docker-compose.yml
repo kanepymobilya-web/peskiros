@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  peskiros:
+    image: nginx:alpine
+    container_name: peskiros-app
+    restart: always
+    volumes:
+      - ./html:/usr/share/nginx/html
+    networks:
+      - coolify
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.peskiros.rule=Host(`192.168.1.57`)"
+      - "traefik.http.routers.peskiros.entrypoints=http"
+      - "traefik.http.services.peskiros.loadbalancer.server.port=80"
+
+networks:
+  coolify:
+    external: true
