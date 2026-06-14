@@ -49,6 +49,10 @@
           <i data-lucide="video"></i>
           <span>Video Stüdyosu</span>
         </button>
+        <button class="nav-item" data-tab="channels">
+          <i data-lucide="message-square"></i>
+          <span>Sohbet Kanalları</span>
+        </button>
         <button class="nav-item" data-tab="memory">
           <i data-lucide="git-fork"></i>
           <span>Obsidian Bellek</span>
@@ -784,6 +788,130 @@ CEO (Hermes AI Aracılığıyla)</textarea>
               </div>
 
             </div>
+          </div>
+        </section>
+
+        <!-- VIEW 8: CHAT CHANNELS INTEGRATION -->
+        <section class="view-pane" id="view-channels">
+          <div class="grid-layout cols-2">
+            
+            <!-- Telegram Integration Card -->
+            <div class="card">
+              <div class="card-glow"></div>
+              <div class="flex-row justify-between items-center mb-16">
+                <h3>Telegram Entegrasyonu</h3>
+                <span class="status status-idle" id="tg-status">Bağlı Değil</span>
+              </div>
+              <p class="card-subtitle">Telegram botunuzu bağlayarak bildirimler alabilir ve asistanı uzaktan kontrol edebilirsiniz.</p>
+              
+              <div class="flex-column gap-12 mt-12">
+                <div class="goal-input-group">
+                  <label for="tg-token" class="editor-label">Bot Token (API Key)</label>
+                  <input type="password" id="tg-token" placeholder="Örn: 123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ" style="width:100%; height:40px; background:#06070a; border:1px solid var(--border-color); border-radius:8px; padding:0 12px; color:#fff; font-family:var(--font-mono); font-size:12px; outline:none;">
+                </div>
+                
+                <div class="goal-input-group mt-8">
+                  <label for="tg-chat-id" class="editor-label">Sohbet Kimliği (Chat ID)</label>
+                  <input type="text" id="tg-chat-id" placeholder="Örn: 987654321" style="width:100%; height:40px; background:#06070a; border:1px solid var(--border-color); border-radius:8px; padding:0 12px; color:#fff; font-family:var(--font-mono); font-size:12px; outline:none;">
+                </div>
+
+                <div class="flex-column gap-8 mt-12 bg-darker p-16 rounded-8 border-1">
+                  <div class="flex-row justify-between items-center">
+                    <span class="text-muted text-sm">Yapay Zeka Otomatik Yanıt:</span>
+                    <label class="switch">
+                      <input type="checkbox" id="tg-auto-reply">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                  <div class="flex-row justify-between items-center mt-8">
+                    <span class="text-muted text-sm">Gelen Kutusu (Draft-Gate) Bildirimleri:</span>
+                    <label class="switch">
+                      <input type="checkbox" id="tg-notifications" checked>
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="flex-row gap-12 mt-20">
+                  <button class="btn btn-secondary btn-icon" id="btn-tg-test" style="flex: 1;">
+                    <i data-lucide="send"></i> Test Mesajı Gönder
+                  </button>
+                  <button class="btn btn-primary btn-icon" id="btn-tg-save" style="flex: 1;">
+                    <i data-lucide="save"></i> Ayarları Kaydet
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- WhatsApp Integration Card -->
+            <div class="card">
+              <div class="card-glow"></div>
+              <div class="flex-row justify-between items-center mb-16">
+                <h3>WhatsApp Business & Web</h3>
+                <span class="status status-idle" id="wa-status">Bağlantı Bekliyor</span>
+              </div>
+              <p class="card-subtitle">Meta Cloud API veya QR Kod taratarak WhatsApp hattınızı entegre edin.</p>
+              
+              <!-- Tab Navigation inside Card (Cloud API / Web QR) -->
+              <div class="flex-row gap-8 mb-12 bg-darker p-4 rounded-8 border-1">
+                <button class="btn btn-sm btn-secondary active-tab-btn" id="btn-wa-tab-qr" style="flex:1; border:none; background:rgba(0,180,255,0.1); color:#fff; font-size:11px; padding:6px 0; border-radius:6px; cursor:pointer;">QR Kod ile Bağlan (Web)</button>
+                <button class="btn btn-sm btn-secondary" id="btn-wa-tab-cloud" style="flex:1; border:none; background:transparent; color:var(--text-muted); font-size:11px; padding:6px 0; border-radius:6px; cursor:pointer;">Meta Cloud API (Official)</button>
+              </div>
+
+              <!-- Content A: QR Code Scan -->
+              <div id="wa-content-qr" class="flex-column items-center justify-center mt-12" style="display: flex; gap: 8px;">
+                <div class="qr-container bg-white p-12 rounded-8 border-1 flex-column items-center justify-center" style="width: 140px; height: 140px; position: relative;">
+                  <div class="qr-scanner-line"></div>
+                  <img id="wa-qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://github.com/kanepymobilya-web/peskiros" alt="QR Code" style="width:100%; height:100%; filter: contrast(1.2);">
+                  <div id="wa-qr-overlay" style="position: absolute; inset:0; background:rgba(7,8,12,0.9); display:none; flex-direction:column; justify-content:center; align-items:center; border-radius:8px;">
+                    <i data-lucide="check-circle" class="text-mint size-32" style="margin-bottom:8px;"></i>
+                    <span class="text-xs text-white font-bold">Bağlandı</span>
+                  </div>
+                </div>
+                <p class="text-muted text-xs mt-12 text-center" id="wa-qr-hint">Telefonunuzdan WhatsApp Web kısmını açıp QR kodu taratın.</p>
+                
+                <button class="btn btn-secondary btn-sm mt-12" id="btn-wa-qr-refresh" style="width:100%;">
+                  <i data-lucide="refresh-cw"></i> Kodu Yenile
+                </button>
+              </div>
+
+              <!-- Content B: Meta Cloud API -->
+              <div id="wa-content-cloud" class="flex-column gap-12 mt-12" style="display: none;">
+                <div class="goal-input-group">
+                  <label for="wa-phone-id" class="editor-label">Telefon Numarası Kimliği (Phone ID)</label>
+                  <input type="text" id="wa-phone-id" placeholder="Örn: 106548792015" style="width:100%; height:40px; background:#06070a; border:1px solid var(--border-color); border-radius:8px; padding:0 12px; color:#fff; font-family:var(--font-mono); font-size:12px; outline:none;">
+                </div>
+                
+                <div class="goal-input-group mt-8">
+                  <label for="wa-token" class="editor-label">Geçici/Kalıcı Erişim Tokenı</label>
+                  <input type="password" id="wa-token" placeholder="EAAW..." style="width:100%; height:40px; background:#06070a; border:1px solid var(--border-color); border-radius:8px; padding:0 12px; color:#fff; font-family:var(--font-mono); font-size:12px; outline:none;">
+                </div>
+
+                <div class="flex-row gap-12 mt-20">
+                  <button class="btn btn-secondary btn-icon" id="btn-wa-cloud-test" style="flex: 1;">
+                    <i data-lucide="send"></i> Test Gönder
+                  </button>
+                  <button class="btn btn-primary btn-icon" id="btn-wa-cloud-save" style="flex: 1;">
+                    <i data-lucide="save"></i> Kaydet
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Full Width Logs Console -->
+            <div class="card card-wide card-full-width">
+              <div class="card-header">
+                <h3>Sohbet Entegrasyon Günlüğü</h3>
+                <span class="console-badge" style="color:var(--neon-blue); background:rgba(0,180,255,0.1); border-color:rgba(0,180,255,0.3)">Hakan OS Webhook</span>
+              </div>
+              <div class="console-box" id="channels-console" style="height: 140px;">
+                <div class="console-line text-muted">[18:50:12] SYSTEM: Sohbet entegrasyon paneli yüklendi.</div>
+                <div class="console-line text-muted">[18:50:15] TG: Telegram Bot Webhook dinleyicisi pasif.</div>
+                <div class="console-line text-muted">[18:50:18] WA: WhatsApp Web oturumu yok.</div>
+              </div>
+            </div>
+
           </div>
         </section>
 

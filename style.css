@@ -1777,3 +1777,37 @@ input:checked + .slider:before {
 .size-16 { width: 16px; height: 16px; }
 .size-32 { width: 32px; height: 32px; }
 
+/* QR Code Scanner Animation */
+.qr-container {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 0 15px rgba(0, 230, 120, 0.05);
+  transition: var(--transition);
+}
+.qr-container:hover {
+  border-color: var(--neon-mint);
+  box-shadow: 0 0 20px rgba(0, 230, 120, 0.15);
+}
+.qr-scanner-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--neon-mint);
+  box-shadow: 0 0 8px var(--neon-mint);
+  animation: scan-anim 2.5s infinite ease-in-out;
+  z-index: 2;
+}
+@keyframes scan-anim {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
+}
+.active-tab-btn {
+  background: rgba(0, 180, 255, 0.1) !important;
+  color: #fff !important;
+  border-color: rgba(0, 180, 255, 0.3) !important;
+}
+
+

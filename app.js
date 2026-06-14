@@ -262,6 +262,7 @@ function initApp() {
   initGoalsModule();
   initVideoModule();
   initMemoryModule();
+  initChannelsModule();
 
   // Trigger voice visualizer loop
   initVoiceWave();
@@ -304,6 +305,7 @@ function switchTab(tabName) {
     kanban: { title: 'Orkestratör Ajan', subtitle: 'Task breaking, delegation, and parallel planning board' },
     goals: { title: 'Goals Mode', subtitle: '24/7 autonomous objective solver and self-healing executor' },
     'video-studio': { title: 'Otonom Video Fabrikası', subtitle: 'SEO keyword to avatar video rendering pipeline with AQA Judge' },
+    channels: { title: 'Sohbet Kanalları Entegrasyonu', subtitle: 'Telegram ve WhatsApp üzerinden bildirimler ve uzaktan kontrol' },
     memory: { title: 'Obsidian Bellek Ağı', subtitle: 'Centralized memory vault mapping brand voice and metadata' }
   };
 
@@ -1262,3 +1264,197 @@ function selectMemoryNode(node) {
   
   el.memoryNodeContent.innerHTML = mdHtml;
 }
+
+// ----------------------------------------------------
+// CHAT CHANNELS INTEGRATION MODULE
+// ----------------------------------------------------
+function initChannelsModule() {
+  const tgToken = document.getElementById('tg-token');
+  const tgChatId = document.getElementById('tg-chat-id');
+  const btnTgTest = document.getElementById('btn-tg-test');
+  const btnTgSave = document.getElementById('btn-tg-save');
+  const tgStatus = document.getElementById('tg-status');
+  const tgAutoReply = document.getElementById('tg-auto-reply');
+  const tgNotifications = document.getElementById('tg-notifications');
+
+  const btnWaTabQr = document.getElementById('btn-wa-tab-qr');
+  const btnWaTabCloud = document.getElementById('btn-wa-tab-cloud');
+  const waContentQr = document.getElementById('wa-content-qr');
+  const waContentCloud = document.getElementById('wa-content-cloud');
+  const waStatus = document.getElementById('wa-status');
+  const waQrOverlay = document.getElementById('wa-qr-overlay');
+  const btnWaQrRefresh = document.getElementById('btn-wa-qr-refresh');
+  
+  const waPhoneId = document.getElementById('wa-phone-id');
+  const waToken = document.getElementById('wa-token');
+  const btnWaCloudTest = document.getElementById('btn-wa-cloud-test');
+  const btnWaCloudSave = document.getElementById('btn-wa-cloud-save');
+
+  // WhatsApp Tab Switching
+  btnWaTabQr.addEventListener('click', () => {
+    btnWaTabQr.classList.add('active-tab-btn');
+    btnWaTabQr.style.color = '#fff';
+    btnWaTabCloud.classList.remove('active-tab-btn');
+    btnWaTabCloud.style.color = 'var(--text-muted)';
+    waContentQr.style.display = 'flex';
+    waContentCloud.style.display = 'none';
+    addChannelLog("WA: QR Kod moduna geçildi.");
+  });
+
+  btnWaTabCloud.addEventListener('click', () => {
+    btnWaTabCloud.classList.add('active-tab-btn');
+    btnWaTabCloud.style.color = '#fff';
+    btnWaTabQr.classList.remove('active-tab-btn');
+    btnWaTabQr.style.color = 'var(--text-muted)';
+    waContentQr.style.display = 'none';
+    waContentCloud.style.display = 'flex';
+    addChannelLog("WA: Meta Cloud API moduna geçildi.");
+  });
+
+  // Telegram - Test Connection (Real API Fetch Request)
+  btnTgTest.addEventListener('click', () => {
+    const token = tgToken.value.trim();
+    const chatId = tgChatId.value.trim();
+
+    if (!token || !chatId) {
+      alert("Lütfen hem Bot Token hem de Chat ID değerlerini doldurun.");
+      addChannelLog("TG Hata: Eksik kimlik bilgileri.");
+      return;
+    }
+
+    addChannelLog(`TG: ${chatId} sohbet kimliğine test mesajı gönderiliyor...`);
+    btnTgTest.disabled = true;
+
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: "🔔 Hakan OS - Bildirim Testi\n\nTelegram entegrasyonu başarıyla doğrulandı! Sistem telemetry ve Draft-Gate uyarıları artık buradan iletilecektir."
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      btnTgTest.disabled = false;
+      if (data.ok) {
+        addChannelLog("TG: Test mesajı başarıyla gönderildi ve doğrulandı!");
+        tgStatus.textContent = "Aktif";
+        tgStatus.className = "status status-running";
+        speak("Telegram bağlantısı başarıyla kuruldu, efendim.");
+      } else {
+        addChannelLog(`TG Hata: ${data.description}`);
+        alert(`Telegram API Hatası:\n${data.description}`);
+      }
+    })
+    .catch(err => {
+      btnTgTest.disabled = false;
+      addChannelLog(`TG Bağlantı Hatası: ${err.message}`);
+      alert(`Sunucu ile iletişim kurulamadı. İnternet bağlantınızı veya Token değerini kontrol edin.`);
+    });
+  });
+
+  // Telegram - Save Settings
+  btnTgSave.addEventListener('click', () => {
+    const token = tgToken.value.trim();
+    const chatId = tgChatId.value.trim();
+
+    if (!token || !chatId) {
+      alert("Lütfen ayarları kaydetmeden önce alanları doldurun.");
+      return;
+    }
+
+    addChannelLog(`TG: Ayarlar kaydedildi. Otomatik Yanıt: ${tgAutoReply.checked ? 'Açık' : 'Kapalı'}, Bildirimler: ${tgNotifications.checked ? 'Açık' : 'Kapalı'}`);
+    tgStatus.textContent = "Aktif";
+    tgStatus.className = "status status-running";
+    speak("Telegram entegrasyon ayarları başarıyla kaydedildi.");
+  });
+
+  // WhatsApp - QR Scan Simulation (Interactive Wow factor)
+  let qrTimer = null;
+  function startQrScanSimulation() {
+    clearTimeout(qrTimer);
+    waQrOverlay.style.display = 'none';
+    waStatus.textContent = "Oturum Bekleniyor";
+    waStatus.className = "status status-idle";
+    
+    addChannelLog("WA: Yeni QR Kod üretildi. Okutulması bekleniyor...");
+
+    // Simulate scanning after 6 seconds
+    qrTimer = setTimeout(() => {
+      if (state.activeTab === 'channels' && waContentQr.style.display !== 'none') {
+        waQrOverlay.style.display = 'flex';
+        waStatus.textContent = "Aktif (Web)";
+        waStatus.className = "status status-running";
+        addChannelLog("WA: QR Kod tarandı! Oturum başarıyla açıldı. Telefon: +90 532 754 3652");
+        speak("WhatsApp Web bağlantısı kuruldu, efendim.");
+      }
+    }, 6000);
+  }
+
+  btnWaQrRefresh.addEventListener('click', () => {
+    const img = document.getElementById('wa-qr-img');
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=peskiros-session-${Math.random()}`;
+    startQrScanSimulation();
+  });
+
+  // WhatsApp Cloud API Actions
+  btnWaCloudTest.addEventListener('click', () => {
+    const phoneId = waPhoneId.value.trim();
+    const token = waToken.value.trim();
+
+    if (!phoneId || !token) {
+      alert("Lütfen test yapmadan önce Phone ID ve Erişim Tokenı alanlarını doldurun.");
+      return;
+    }
+
+    addChannelLog(`WA: Meta Cloud API üzerinden test gönderiliyor (Phone: ${phoneId})...`);
+    // Mock successful Meta Cloud API request
+    setTimeout(() => {
+      addChannelLog("WA: Meta API test mesajı gönderim sırasına eklendi (Mock Success).");
+      waStatus.textContent = "Aktif (Cloud)";
+      waStatus.className = "status status-running";
+      speak("WhatsApp API test mesajı gönderildi.");
+    }, 1000);
+  });
+
+  btnWaCloudSave.addEventListener('click', () => {
+    const phoneId = waPhoneId.value.trim();
+    const token = waToken.value.trim();
+
+    if (!phoneId || !token) {
+      alert("Lütfen ayarları kaydetmeden önce alanları doldurun.");
+      return;
+    }
+
+    addChannelLog(`WA: Meta Cloud API konfigürasyonu kaydedildi. Phone ID: ${phoneId}`);
+    waStatus.textContent = "Aktif (Cloud)";
+    waStatus.className = "status status-running";
+    speak("WhatsApp Cloud API ayarları güncellendi.");
+  });
+
+  // Auto trigger QR scan simulation when opening this tab
+  const originalSwitchTab = switchTab;
+  switchTab = function(tabName) {
+    originalSwitchTab(tabName);
+    if (tabName === 'channels') {
+      startQrScanSimulation();
+    } else {
+      clearTimeout(qrTimer);
+    }
+  };
+}
+
+function addChannelLog(text) {
+  const consoleBox = document.getElementById('channels-console');
+  if (!consoleBox) return;
+  const time = new Date().toLocaleTimeString('tr-TR', { hour12: false });
+  const line = document.createElement('div');
+  line.className = 'console-line';
+  line.textContent = `[${time}] ${text}`;
+  consoleBox.appendChild(line);
+  consoleBox.scrollTop = consoleBox.scrollHeight;
+}
+
