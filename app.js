@@ -1370,6 +1370,10 @@ function selectMemoryNode(node) {
 // ----------------------------------------------------
 // CHAT CHANNELS INTEGRATION MODULE
 // ----------------------------------------------------
+let tgPollingInterval = null;
+let lastTgUpdateId = 0;
+let isFirstTgPoll = true;
+
 function initChannelsModule() {
   const tgToken = document.getElementById('tg-token');
   const tgChatId = document.getElementById('tg-chat-id');
@@ -1391,6 +1395,43 @@ function initChannelsModule() {
   const waToken = document.getElementById('wa-token');
   const btnWaCloudTest = document.getElementById('btn-wa-cloud-test');
   const btnWaCloudSave = document.getElementById('btn-wa-cloud-save');
+
+  // Load TG settings from localStorage if exist, or save HTML values to localStorage
+  const savedTgToken = localStorage.getItem('tg_token');
+  const savedTgChatId = localStorage.getItem('tg_chat_id');
+  const savedTgAutoReply = localStorage.getItem('tg_auto_reply');
+  const savedTgNotifications = localStorage.getItem('tg_notifications');
+
+  if (savedTgToken) tgToken.value = savedTgToken;
+  else if (tgToken.value) localStorage.setItem('tg_token', tgToken.value.trim());
+
+  if (savedTgChatId) tgChatId.value = savedTgChatId;
+  else if (tgChatId.value) localStorage.setItem('tg_chat_id', tgChatId.value.trim());
+
+  if (savedTgAutoReply !== null) tgAutoReply.checked = (savedTgAutoReply === 'true');
+  else localStorage.setItem('tg_auto_reply', tgAutoReply.checked);
+
+  if (savedTgNotifications !== null) tgNotifications.checked = (savedTgNotifications === 'true');
+  else localStorage.setItem('tg_notifications', tgNotifications.checked);
+
+  // Update status if credentials exist
+  if (tgToken.value && tgChatId.value) {
+    tgStatus.textContent = "Aktif";
+    tgStatus.className = "status status-running";
+  }
+
+  // Auto-start TG updates polling loop
+  startTelegramPolling();
+
+  // Save settings when state changes
+  tgAutoReply.addEventListener('change', () => {
+    localStorage.setItem('tg_auto_reply', tgAutoReply.checked);
+    addChannelLog(`TG: Otomatik yanıt ayarı ${tgAutoReply.checked ? 'etkinleştirildi' : 'devre dışı bırakıldı'}.`);
+  });
+
+  tgNotifications.addEventListener('change', () => {
+    localStorage.setItem('tg_notifications', tgNotifications.checked);
+  });
 
   // WhatsApp Tab Switching
   btnWaTabQr.addEventListener('click', () => {
@@ -1468,10 +1509,19 @@ function initChannelsModule() {
       return;
     }
 
+    localStorage.setItem('tg_token', token);
+    localStorage.setItem('tg_chat_id', chatId);
+    localStorage.setItem('tg_auto_reply', tgAutoReply.checked);
+    localStorage.setItem('tg_notifications', tgNotifications.checked);
+
     addChannelLog(`TG: Ayarlar kaydedildi. Otomatik Yanıt: ${tgAutoReply.checked ? 'Açık' : 'Kapalı'}, Bildirimler: ${tgNotifications.checked ? 'Açık' : 'Kapalı'}`);
     tgStatus.textContent = "Aktif";
     tgStatus.className = "status status-running";
     speak("Telegram entegrasyon ayarları başarıyla kaydedildi.");
+    
+    // Restart polling with new token
+    isFirstTgPoll = true;
+    startTelegramPolling();
   });
 
   // WhatsApp - QR Scan Simulation (Interactive Wow factor)
@@ -1549,6 +1599,139 @@ function initChannelsModule() {
   };
 }
 
+function startTelegramPolling() {
+  if (tgPollingInterval) clearInterval(tgPollingInterval);
+  
+  tgPollingInterval = setInterval(() => {
+    const tgToken = document.getElementById('tg-token');
+    const tgAutoReply = document.getElementById('tg-auto-reply');
+    if (!tgToken || !tgAutoReply) return;
+
+    const token = tgToken.value.trim();
+    const isAutoReply = tgAutoReply.checked;
+    
+    if (!token || !isAutoReply) return;
+    
+    let url = `https://api.telegram.org/bot${token}/getUpdates`;
+    if (lastTgUpdateId > 0) {
+      url += `?offset=${lastTgUpdateId + 1}&timeout=2`;
+    } else {
+      url += `?limit=10`;
+    }
+    
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok && data.result.length > 0) {
+          const maxUpdate = data.result.reduce((max, u) => u.update_id > max ? u.update_id : max, 0);
+          
+          if (isFirstTgPoll) {
+            lastTgUpdateId = maxUpdate;
+            isFirstTgPoll = false;
+            addChannelLog(`TG: Otomatik yanıt dinleyicisi başlatıldı. Son Update ID: ${lastTgUpdateId}`);
+            return;
+          }
+          
+          data.result.forEach(update => {
+            if (update.update_id > lastTgUpdateId) {
+              lastTgUpdateId = update.update_id;
+              
+              if (update.message && update.message.text) {
+                const chatId = update.message.chat.id;
+                const text = update.message.text;
+                const sender = update.message.from.first_name || 'CEO';
+                
+                addChannelLog(`TG: Gelen Mesaj (${sender}): "${text}"`);
+                
+                // Get response from OpenRouter
+                getTelegramBotReply(text, sender, (reply) => {
+                  sendTelegramMessage(token, chatId, reply);
+                });
+              }
+            }
+          });
+        } else if (isFirstTgPoll && data.ok) {
+          isFirstTgPoll = false;
+          addChannelLog("TG: Otomatik yanıt dinleyicisi başlatıldı (Yeni mesaj bekleniyor).");
+        }
+      })
+      .catch(err => {
+        console.error("Telegram polling error:", err);
+      });
+  }, 3000);
+}
+
+function sendTelegramMessage(token, chatId, text) {
+  const url = `https://api.telegram.org/bot${token}/sendMessage`;
+  fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, text: text })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.ok) {
+      addChannelLog(`TG: Cevap Gönderildi: "${text}"`);
+    } else {
+      addChannelLog(`TG Hata: Mesaj gönderilemedi.`);
+    }
+  })
+  .catch(err => {
+    addChannelLog(`TG Hata: Bağlantı hatası: ${err.message}`);
+  });
+}
+
+function getTelegramBotReply(inputText, senderName, callback) {
+  const key = localStorage.getItem('openrouter_key') || '';
+  if (!key) {
+    callback("Apologies, CEO. No OpenRouter key is configured in the Agent OS dashboard.");
+    return;
+  }
+  
+  const modelMapping = {
+    'deepseek-v4': 'deepseek/deepseek-v4-pro',
+    'hermes': 'google/gemini-2.5-flash',
+    'kim': 'moonshotai/moonshot-v1-8k',
+    'gemini': 'google/gemini-2.5-pro',
+    'claude': 'anthropic/claude-3.5-sonnet'
+  };
+  const activeModelId = modelMapping[state.currentModel] || 'deepseek/deepseek-v4-pro';
+  
+  fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${key}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': 'http://192.168.1.57',
+      'X-Title': 'Hakan OS Telegram Bot'
+    },
+    body: JSON.stringify({
+      model: activeModelId,
+      messages: [
+        {
+          role: 'system',
+          content: "You are Hermes Jarvis, the advanced AI butler and agent assistant operating on Hakan OS. You are responding to the user on Telegram. Address the user respectfully (e.g. as 'CEO' or 'Sir'). Keep your response concise, clear, and in Turkish."
+        },
+        {
+          role: 'user',
+          content: `Message from ${senderName}: ${inputText}`
+        }
+      ]
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      callback(data.choices[0].message.content);
+    } else {
+      callback("I encountered an issue processing the response from the OpenRouter node.");
+    }
+  })
+  .catch(err => {
+    callback(`Could not connect to OpenRouter. Error: ${err.message}`);
+  });
+}
+
 function addChannelLog(text) {
   const consoleBox = document.getElementById('channels-console');
   if (!consoleBox) return;
@@ -1559,4 +1742,5 @@ function addChannelLog(text) {
   consoleBox.appendChild(line);
   consoleBox.scrollTop = consoleBox.scrollHeight;
 }
+
 
