@@ -400,6 +400,18 @@ function initJarvisModule() {
     if (e.key === 'Enter') sendJarvisMessage();
   });
 
+  const keyInput = document.getElementById('openrouter-key');
+  if (keyInput) {
+    // Load key from localStorage
+    keyInput.value = localStorage.getItem('openrouter_key') || '';
+    
+    // Save key to localStorage
+    keyInput.addEventListener('change', () => {
+      localStorage.setItem('openrouter_key', keyInput.value.trim());
+      addDashboardLog("SYSTEM: OpenRouter API Key updated successfully.");
+    });
+  }
+
   let recording = false;
   el.btnMic.addEventListener('click', () => {
     recording = !recording;
@@ -439,7 +451,7 @@ function sendJarvisMessage() {
   addJarvisLog('CEO', text, false);
   el.chatInput.value = '';
 
-  // Simulate Jarvis response
+  // Simulate or process response
   setTimeout(() => {
     processJarvisCommand(text);
   }, 800);
@@ -447,6 +459,7 @@ function sendJarvisMessage() {
 
 function processJarvisCommand(input) {
   const clean = input.toLowerCase();
+  const key = localStorage.getItem('openrouter_key') || '';
   
   if (clean.startsWith('/help')) {
     const help = `Very well, sir. Here are my operational directives:
@@ -483,6 +496,68 @@ function processJarvisCommand(input) {
   else if (clean.includes('kimsin') || clean.includes('hedef') || clean.includes('goals')) {
     addJarvisLog('Hermes Jarvis', 'I am Jarvis. The executive engine of Agent OS. I execute actions, manage your inbox, write emails, and run 24/7 autonomous loops until your strategic targets are secured.', true);
     speak("I am Jarvis. The executive engine of your Agentic OS.");
+  }
+  else if (key && !input.startsWith('/')) {
+    // Real-time OpenRouter request
+    const thinkingDiv = document.createElement('div');
+    thinkingDiv.className = 'message message-bot';
+    thinkingDiv.id = 'jarvis-thinking';
+    const time = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    thinkingDiv.innerHTML = `
+      <div class="msg-avatar">H</div>
+      <div class="msg-bubble">
+        <p class="text-muted"><em>Hermes Jarvis yanıt hazırlıyor...</em></p>
+        <span class="msg-time">${time}</span>
+      </div>
+    `;
+    el.chatMessages.appendChild(thinkingDiv);
+    el.chatMessages.scrollTop = el.chatMessages.scrollHeight;
+
+    fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${key}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'http://192.168.1.57',
+        'X-Title': 'Hakan OS'
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          {
+            role: 'system',
+            content: "You are Hermes Jarvis, an advanced AI agent assistant operating on Hakan OS (Agent OS). You speak in a polite, sophisticated British butler persona (like Alfred or Jarvis). You address the user as 'CEO' or 'Sir'. Keep your responses helpful, elegant, and concise. You can write in Turkish or English, depending on what the user speaks."
+          },
+          {
+            role: 'user',
+            content: input
+          }
+        ]
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      const th = document.getElementById('jarvis-thinking');
+      if (th) th.remove();
+
+      if (data.choices && data.choices[0] && data.choices[0].message) {
+        const reply = data.choices[0].message.content;
+        addJarvisLog('Hermes Jarvis', reply, true);
+        speak(reply);
+      } else {
+        const errMsg = "Apologies, Sir. I encountered an issue parsing the response from the OpenRouter node.";
+        addJarvisLog('Hermes Jarvis', errMsg, true);
+        speak(errMsg);
+        console.error("OpenRouter API returned error:", data);
+      }
+    })
+    .catch(err => {
+      const th = document.getElementById('jarvis-thinking');
+      if (th) th.remove();
+      const errMsg = `Apologies, Sir. I could not establish a connection to OpenRouter. ${err.message}`;
+      addJarvisLog('Hermes Jarvis', errMsg, true);
+      speak(errMsg);
+    });
   }
   else {
     addJarvisLog('Hermes Jarvis', `Understood, CEO. I am scheduling a task to process: "${input}". Let me know if I should initiate the Goals Mode loop.`, true);
