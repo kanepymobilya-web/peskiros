@@ -11,7 +11,7 @@ const state = {
   memorySize: 142, // KB
   apiCost: 1.42,
   ttsEnabled: false,
-  currentModel: 'hermes',
+  currentModel: 'deepseek-v4',
   
   // Inbox data
   inbox: [
@@ -402,13 +402,31 @@ function initJarvisModule() {
 
   const keyInput = document.getElementById('openrouter-key');
   if (keyInput) {
-    // Load key from localStorage
-    keyInput.value = localStorage.getItem('openrouter_key') || '';
+    // Save/load key to/from localStorage to prevent erasing injected key
+    const savedKey = localStorage.getItem('openrouter_key');
+    if (!savedKey && keyInput.value) {
+      localStorage.setItem('openrouter_key', keyInput.value.trim());
+    } else if (savedKey) {
+      keyInput.value = savedKey;
+    }
     
-    // Save key to localStorage
     keyInput.addEventListener('change', () => {
       localStorage.setItem('openrouter_key', keyInput.value.trim());
       addDashboardLog("SYSTEM: OpenRouter API Key updated successfully.");
+    });
+  }
+
+  const modelSelect = document.getElementById('model-select');
+  if (modelSelect) {
+    // Load model from localStorage or use default
+    const savedModel = localStorage.getItem('selected_model') || 'deepseek-v4';
+    modelSelect.value = savedModel;
+    state.currentModel = savedModel;
+
+    modelSelect.addEventListener('change', (e) => {
+      state.currentModel = e.target.value;
+      localStorage.setItem('selected_model', state.currentModel);
+      addDashboardLog(`SYSTEM: Active Model changed to ${modelSelect.options[modelSelect.selectedIndex].text}`);
     });
   }
 
@@ -513,6 +531,15 @@ function processJarvisCommand(input) {
     el.chatMessages.appendChild(thinkingDiv);
     el.chatMessages.scrollTop = el.chatMessages.scrollHeight;
 
+    const modelMapping = {
+      'deepseek-v4': 'deepseek/deepseek-v4-pro',
+      'hermes': 'google/gemini-2.5-flash',
+      'kim': 'moonshotai/moonshot-v1-8k',
+      'gemini': 'google/gemini-2.5-pro',
+      'claude': 'anthropic/claude-3.5-sonnet'
+    };
+    const activeModelId = modelMapping[state.currentModel] || 'deepseek/deepseek-v4-pro';
+
     fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -522,7 +549,7 @@ function processJarvisCommand(input) {
         'X-Title': 'Hakan OS'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: activeModelId,
         messages: [
           {
             role: 'system',
